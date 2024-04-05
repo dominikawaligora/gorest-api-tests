@@ -2,10 +2,9 @@ import request from "supertest";
 
 const baseUrl = "https://gorest.co.in/public/v2/";
 describe('get users', () => {
-    it('should return 200 status code',
+    test.only('should return 200 status code',
     async() => {
-        const response = await
-        request(baseUrl).get('users');
+        const response = await request(baseUrl).get('users');
         expect(response.statusCode).toBe(200);
     });
 });
