@@ -1,24 +1,68 @@
 import request from "supertest";
 
-const baseUrl = "https://gorest.co.in/public/v2/";
+import { baseUrl, token } from "../config/api";
 
-const randomUser = require('../helper/random-user');
+const randomUser = require('../helper/userdata-generator');
+const userComparator = require('../helper/user-validator');
 
-const TOKEN = "b2e25f393b1f5f8dc24e0a9f5e547b0fb2546057a9f9249e56baa4968dc5c2c1";
-
-// todo: const a let
-describe('CRUD user E2E positive scenario', () => {
-    test('POST user', 
+// todo: const vs let
+describe('Create user', () => {
+    
+    test('simple positive scenario for creating user', 
     async() => {
-        let user;
-        user = randomUser.getRandomBasicUser();
-        const response = await request(baseUrl)
-            .post('users')
-            .set('Authorization', `Bearer ${TOKEN}`)
-            .send(user);
-
-        console.log(response.body);
-
+        // given 
+        let userId;
+        
+        // when
+        const response = await postUser();
+        userId = response.body.id;
+       
+        // then
         expect(response.statusCode).toBe(201);
-    })
+       
+        const createdUser = await request(baseUrl)
+            .get(`users/${userId}`)
+            .set('Authorization', `Bearer ${token}`);
+       
+     userComparator.compareBasicUserData(response.body, createdUser.body);
+        
+    });
+
+    test('positive scenario for creating user and his posts', 
+    async() => {
+        // given 
+        let userId;
+        let userPost = randomUser.getUserPost();
+       
+      // when
+        const response = await postUser();
+        userId = response.body.id;
+        
+        const responsePost = await request(baseUrl)
+            .post(`users/${userId}/posts`)
+            .set('Authorization', `Bearer ${token}`)
+            .send(userPost);
+            console.log(userPost);
+     
+        // then
+        expect(responsePost.statusCode).toBe(201);
+       
+       
+        const createdUser = await request(baseUrl)
+            .get(`users/${userId}`)
+            .set('Authorization', `Bearer ${token}`);
+        userComparator.compareBasicUserData(response.body, createdUser.body);
+        userComparator.comparePosts(userPost, userPost);
+
+    });
+
+    async function postUser() {
+        let user = randomUser.getRandomBasicUserData();
+        
+        // when
+        return await request(baseUrl)
+            .post('users')
+            .set('Authorization', `Bearer ${token}`)
+            .send(user);
+    }
 });
