@@ -13,3 +13,4 @@ faker - to generate fake user data
 4. When sending POST request with incorrect value for gender, the error message contains also information of missing value for status 
 5. Error message is not correct when gender or status are set to incorrect value during POST request
 6. PUT method should not allow to do partial update
+7. When trying to delete not existing user, the error message should not state 404 NOT FOUND

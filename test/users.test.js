@@ -1,7 +1,9 @@
 import request from "supertest";
-import { baseUrl, token } from "../config/api";
+import { BASE_URL, TOKEN, STATUS_CREATED, STATUS_OK, STATUS_NO_CONTENT, STATUS_DATA_VALIDATION_FAILED, STATUS_NOT_FOUND } 
+    from "../config/api";
 
 const randomUser = require('../helper/userdata-generator');
+const newUser = require('../helper/userdata-creator');
 
 describe('CREATE and READ user', () => {
     
@@ -20,23 +22,23 @@ describe('CREATE and READ user', () => {
         // when
         userId = await postUserAndVerify();
        
-        await request(baseUrl)
+        await request(BASE_URL)
             .post(`users/${userId}/posts`)
-            .set('Authorization', `Bearer ${token}`)
+            .set('Authorization', `Bearer ${TOKEN}`)
             .send(userPost)
-            .expect(201);
+            .expect(STATUS_CREATED);
 
-        await request(baseUrl)
+        await request(BASE_URL)
             .post(`users/${userId}/todos`)
-            .set('Authorization', `Bearer ${token}`)
+            .set('Authorization', `Bearer ${TOKEN}`)
             .send(userTodos)
-            .expect(201);
+            .expect(STATUS_CREATED);
           
         // then
-        await request(baseUrl)
+        await request(BASE_URL)
             .get(`users/${userId}/posts`)
-            .set('Authorization', `Bearer ${token}`)
-            .expect(200)
+            .set('Authorization', `Bearer ${TOKEN}`)
+            .expect(STATUS_OK)
             .then(response => {
                 expect(response.body[0].title).toBe(userPost.title);
                 expect(response.body[0].body).toBe(userPost.body);
@@ -44,10 +46,10 @@ describe('CREATE and READ user', () => {
               
             });
 
-            await request(baseUrl)
+            await request(BASE_URL)
                 .get(`users/${userId}/todos`)
-                .set('Authorization', `Bearer ${token}`)
-                .expect(200)
+                .set('Authorization', `Bearer ${TOKEN}`)
+                .expect(STATUS_OK)
                 .then(response => {
                     expect(response.body[0].title).toBe(userTodos.title);
                     expect(response.body[0].status).toBe(userTodos.status);
@@ -67,11 +69,11 @@ describe('CREATE and READ user', () => {
 
         // when
         // then
-        await request(baseUrl)
+        await request(BASE_URL)
             .post('users')
-            .set('Authorization', `Bearer ${token}`)
+            .set('Authorization', `Bearer ${TOKEN}`)
             .send("{}")
-            .expect(422)
+            .expect(STATUS_DATA_VALIDATION_FAILED)
             .then(response => {
                 expect(response.text).toContain(expectedEmail);
                 expect(response.text).toContain(expectedName);
@@ -94,11 +96,11 @@ describe('CREATE and READ user', () => {
         let expectedGender = "{\"field\":\"gender\",\"message\":\"can't be blank, can be male of female\"}"; // need to adjust error message after defect is fixed
 
         // when
-        await request(baseUrl)
+        await request(BASE_URL)
             .post('users')
-            .set('Authorization', `Bearer ${token}`)
+            .set('Authorization', `Bearer ${TOKEN}`)
             .send(user)
-            .expect(422)
+            .expect(STATUS_DATA_VALIDATION_FAILED)
             .then(response => {
                 expect(response.text).toContain(expectedGender);
             });
@@ -119,11 +121,11 @@ describe('CREATE and READ user', () => {
         let expectedStatus = "{\"field\":\"status\",\"message\":\"can't be blank\"}"; // to correct when defect is fixed
         
         // when
-        await request(baseUrl)
+        await request(BASE_URL)
             .post('users')
-            .set('Authorization', `Bearer ${token}`)
+            .set('Authorization', `Bearer ${TOKEN}`)
             .send(user)
-            .expect(422)
+            .expect(STATUS_DATA_VALIDATION_FAILED)
             .then(response => {
                 expect(response.text).toContain(expectedStatus);
             });
@@ -143,11 +145,11 @@ describe('CREATE and READ user', () => {
         let expectedEmail = "{\"field\":\"email\",\"message\":\"is invalid\"}";
         
         // when
-        await request(baseUrl)
+        await request(BASE_URL)
             .post('users')
-            .set('Authorization', `Bearer ${token}`)
+            .set('Authorization', `Bearer ${TOKEN}`)
             .send(user)
-            .expect(422)
+            .expect(STATUS_DATA_VALIDATION_FAILED)
             .then(response => {
                 expect(response.text).toContain(expectedEmail);
             });
@@ -160,18 +162,18 @@ describe('CREATE and READ user', () => {
         let user = randomUser.generateRandomData();
         
         // when
-        let response = await request(baseUrl)
+        let response = await request(BASE_URL)
             .post('users')
-            .set('Authorization', `Bearer ${token}`)
+            .set('Authorization', `Bearer ${TOKEN}`)
             .send(user)
-            .expect(201);
+            .expect(STATUS_CREATED);
 
           
         // then
-        await request(baseUrl)
+        await request(BASE_URL)
             .get(`users/${response.body.id}`)
-            .set('Authorization', `Bearer ${token}`)
-            .expect(200)
+            .set('Authorization', `Bearer ${TOKEN}`)
+            .expect(STATUS_OK)
             .then(response => {
                 expect(response.body.id).toBe(response.body.id);
                 expect(response.body.email).toBe(user.email);
@@ -189,21 +191,21 @@ describe('UPDATE and READ user', () => {
     async() => {
         // given
         let userData = randomUser.generateRandomData();
-        let userId = await postUser(userData);
+        let userId = await newUser.create(userData);
         let newUserData = randomUser.generateRandomData();
         
         // when
-        await request(baseUrl)
+        await request(BASE_URL)
             .put(`users/${userId}`)
-            .set('Authorization', `Bearer ${token}`)
+            .set('Authorization', `Bearer ${TOKEN}`)
             .send(newUserData)
-            .expect(200);
+            .expect(STATUS_OK);
         
         // then
-        await request(baseUrl)
+        await request(BASE_URL)
             .get(`users/${userId}`)
-            .set('Authorization', `Bearer ${token}`)
-            .expect(200)
+            .set('Authorization', `Bearer ${TOKEN}`)
+            .expect(STATUS_OK)
             .then(response => {
                 expect(response.body.id).toBe(response.body.id);
                 expect(response.body.email).toBe(newUserData.email);
@@ -217,23 +219,23 @@ describe('UPDATE and READ user', () => {
     async() => {
          // given
          let userData = randomUser.generateRandomData();
-         let userId = await postUser(userData);
+         let userId = await newUser.create(userData);
          let newUserData = {
             email: randomUser.generateEmail()
          }
          
          // when
-         await request(baseUrl)
+         await request(BASE_URL)
              .patch(`users/${userId}`)
-             .set('Authorization', `Bearer ${token}`)
+             .set('Authorization', `Bearer ${TOKEN}`)
              .send(newUserData)
-             .expect(200);
+             .expect(STATUS_OK);
          
          // then
-         await request(baseUrl)
+         await request(BASE_URL)
              .get(`users/${userId}`)
-             .set('Authorization', `Bearer ${token}`)
-             .expect(200)
+             .set('Authorization', `Bearer ${TOKEN}`)
+             .expect(STATUS_OK)
              .then(response => {
                  expect(response.body.id).toBe(response.body.id);
                  expect(response.body.email).toBe(newUserData.email);
@@ -247,23 +249,23 @@ describe('UPDATE and READ user', () => {
     async() => {
         // given
         let userData = randomUser.generateRandomData();
-        let userId = await postUser(userData);
+        let userId = await newUser.create(userData);
         let newUserData = {
            name: randomUser.generateName()
         }
         
         // when
-        await request(baseUrl)
+        await request(BASE_URL)
             .patch(`users/${userId}`)
-            .set('Authorization', `Bearer ${token}`)
+            .set('Authorization', `Bearer ${TOKEN}`)
             .send(newUserData)
-            .expect(200);
+            .expect(STATUS_OK);
         
         // then
-        await request(baseUrl)
+        await request(BASE_URL)
             .get(`users/${userId}`)
-            .set('Authorization', `Bearer ${token}`)
-            .expect(200)
+            .set('Authorization', `Bearer ${TOKEN}`)
+            .expect(STATUS_OK)
             .then(response => {
                 expect(response.body.id).toBe(response.body.id);
                 expect(response.body.email).toBe(userData.email);
@@ -277,23 +279,23 @@ describe('UPDATE and READ user', () => {
     async() => {
         // given
         let userData = randomUser.generateRandomData();
-        let userId = await postUser(userData);
+        let userId = await newUser.create(userData);
         let newUserData = {
            status: (userData.status = "active") ? "inactive" : "active"
         }
         
         // when
-        await request(baseUrl)
+        await request(BASE_URL)
             .patch(`users/${userId}`)
-            .set('Authorization', `Bearer ${token}`)
+            .set('Authorization', `Bearer ${TOKEN}`)
             .send(newUserData)
-            .expect(200);
+            .expect(STATUS_OK);
         
         // then
-        await request(baseUrl)
+        await request(BASE_URL)
             .get(`users/${userId}`)
-            .set('Authorization', `Bearer ${token}`)
-            .expect(200)
+            .set('Authorization', `Bearer ${TOKEN}`)
+            .expect(STATUS_OK)
             .then(response => {
                 expect(response.body.id).toBe(response.body.id);
                 expect(response.body.email).toBe(userData.email);
@@ -313,11 +315,11 @@ describe('UPDATE and READ user', () => {
         
         // when
         // then
-        await request(baseUrl)
+        await request(BASE_URL)
             .put(`users/NotExisting`)
-            .set('Authorization', `Bearer ${token}`)
+            .set('Authorization', `Bearer ${TOKEN}`)
             .send(newUserData)
-            .expect(404)
+            .expect(STATUS_NOT_FOUND)
             .then(response => {
                 expect(response.text).toContain(expectedError);
             });
@@ -333,11 +335,11 @@ describe('UPDATE and READ user', () => {
         
         // when
         // then
-        await request(baseUrl)
+        await request(BASE_URL)
             .patch(`users/NotExisting`)
-            .set('Authorization', `Bearer ${token}`)
+            .set('Authorization', `Bearer ${TOKEN}`)
             .send(newUserData)
-            .expect(404)
+            .expect(STATUS_NOT_FOUND)
             .then(response => {
                 expect(response.text).toContain(expectedError);
             });
@@ -347,7 +349,7 @@ describe('UPDATE and READ user', () => {
     async() => {
         // given
         let userData = randomUser.generateRandomData();
-        let userId = await postUser(userData);
+        let userId = await newUser.create(userData);
         let newUserData = {
             email: "someStrangeValue"
         };
@@ -356,11 +358,11 @@ describe('UPDATE and READ user', () => {
         
         // when
         // then
-        await request(baseUrl)
+        await request(BASE_URL)
             .patch(`users/${userId}`)
-            .set('Authorization', `Bearer ${token}`)
+            .set('Authorization', `Bearer ${TOKEN}`)
             .send(newUserData)
-            .expect(422)
+            .expect(STATUS_DATA_VALIDATION_FAILED)
             .then(response => {
                 expect(response.text).toContain(expectedError);
             });;
@@ -371,7 +373,7 @@ describe('UPDATE and READ user', () => {
     async() => {
         // given
         let userData = randomUser.generateRandomData();
-        let userId = await postUser(userData);
+        let userId = await newUser.create(userData);
         let newUserData = {
             status: "someStrangeValue"
         };
@@ -380,11 +382,11 @@ describe('UPDATE and READ user', () => {
         
         // when
         // then
-        await request(baseUrl)
+        await request(BASE_URL)
             .patch(`users/${userId}`)
-            .set('Authorization', `Bearer ${token}`)
+            .set('Authorization', `Bearer ${TOKEN}`)
             .send(newUserData)
-            .expect(422)
+            .expect(STATUS_DATA_VALIDATION_FAILED)
             .then(response => {
                 expect(response.text).toContain(expectedError);
             });
@@ -394,7 +396,7 @@ describe('UPDATE and READ user', () => {
     async() => {
         // given
         let userData = randomUser.generateRandomData();
-        let userId = await postUser(userData);
+        let userId = await newUser.create(userData);
         let newUserData = {
             gender: "someStrangeValue"
         };
@@ -403,23 +405,61 @@ describe('UPDATE and READ user', () => {
         
         // when
         // then
-        await request(baseUrl)
+        await request(BASE_URL)
             .patch(`users/${userId}`)
-            .set('Authorization', `Bearer ${token}`)
+            .set('Authorization', `Bearer ${TOKEN}`)
             .send(newUserData)
-            .expect(422)
+            .expect(STATUS_DATA_VALIDATION_FAILED)
             .then(response => {
                 expect(response.text).toContain(expectedError);
             });
     });
+});
 
-    async function postUser(userData) {
-        let response = await request(baseUrl)
-            .post('users')
-            .set('Authorization', `Bearer ${token}`)
-            .send(userData)
-            .expect(201);
-        return response.body.id;
-    }
+describe('DELETE user', () => {
+    test('positive scenario to delete user',
+    async() => {
+        // given
+        let userData = randomUser.generateRandomData();
+        let userId = await newUser.create(userData);
         
+        // when
+        // then
+        await request(BASE_URL)
+            .delete(`users/${userId}`)
+            .set('Authorization', `Bearer ${TOKEN}`)
+            .expect(STATUS_NO_CONTENT);
+    });
+
+    test.only('positive scenario to delete user with external resources',
+    async() => {
+        // given
+        let userData = randomUser.generateRandomData();
+        let userId = await newUser.create(userData);
+        let postId = await newUser.createPosts(userId);
+        console.log("userid: " + userId +", postId: " + postId);
+        await newUser.createTodos(userId);
+        await newUser.createComments( userData.name, userData.email, postId);
+        
+        // when
+        // then
+        await request(BASE_URL)
+            .delete(`users/${userId}`)
+            .set('Authorization', `Bearer ${TOKEN}`)
+            .expect(STATUS_NO_CONTENT); 
+    });
+
+
+    test('positive scenario to delete not existing user',
+    async() => {
+        // given
+        let userId = "NotExisting";
+        
+        // when
+        // then
+        await request(BASE_URL)
+            .delete(`users/${userId}`)
+            .set('Authorization', `Bearer ${TOKEN}`)
+            .expect(STATUS_NOT_FOUND);       // should be corrected after defect is fixed
+    });
 });

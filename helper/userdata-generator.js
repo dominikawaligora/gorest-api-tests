@@ -43,6 +43,18 @@ export function generateTodos() {
    return data;
 }
 
+export function generateComments(userName, userEmail, postId) {
+    let data;
+    data = {
+        post: postId,
+        name: userName,
+        email: userEmail,
+        body: faker.lorem.sentence(10,20),
+    }
+    
+   return data;
+}
+
 function getRandomStatus() {
     if (Math.random() >= 0.5)
         return 'active';
@@ -58,4 +70,4 @@ function getRandomTodoStatus() {
 }
 
 
-module.exports = {generateRandomData, generatePosts, generateTodos, generateName, generateEmail, generateGender, generateStatus};
+module.exports = {generateRandomData, generatePosts, generateTodos, generateComments, generateName, generateEmail, generateGender, generateStatus};
