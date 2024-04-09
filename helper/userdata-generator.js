@@ -1,20 +1,12 @@
 const { faker } = require('@faker-js/faker');
 
-import { baseUrl, token } from "../config/api";
-
-import request from "supertest";
-
-
 export function generateRandomData() {
-    let data;
-    data = {
-        email: faker.internet.email(),
-        name: faker.person.fullName(),
-        gender: faker.person.sex(),
-        status: getRandomStatus()
+    return {
+        email: generateEmail(),
+        name: generateName(),
+        gender: generateGender(),
+        status: generateStatus()
     }
-
-    return data;
 }
 
 export function generateEmail() {
@@ -66,4 +58,4 @@ function getRandomTodoStatus() {
 }
 
 
-module.exports = {generateRandomData, createRandomUser, generatePosts, generateTodos, generateName, generateEmail, generateGender, generateStatus};
+module.exports = {generateRandomData, generatePosts, generateTodos, generateName, generateEmail, generateGender, generateStatus};

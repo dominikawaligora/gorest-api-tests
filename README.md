@@ -1,6 +1,10 @@
 README file
+# run #
+npm test
 
-
+# libraries #
+supertest, jest - to test the endpoints
+faker - to generate fake user data
 
 # defects and problems found #
 1. Comments endpoint is returning 404

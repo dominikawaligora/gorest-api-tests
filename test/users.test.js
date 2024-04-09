@@ -1,11 +1,8 @@
 import request from "supertest";
-
 import { baseUrl, token } from "../config/api";
-import { ne } from "faker/lib/locales";
 
 const randomUser = require('../helper/userdata-generator');
 
-// todo: const vs let
 describe('CREATE and READ user', () => {
     
     test('simple positive scenario for creating user', 
@@ -23,17 +20,17 @@ describe('CREATE and READ user', () => {
         // when
         userId = await postUserAndVerify();
        
-        const responsePost = await request(baseUrl)
+        await request(baseUrl)
             .post(`users/${userId}/posts`)
             .set('Authorization', `Bearer ${token}`)
             .send(userPost)
             .expect(201);
 
-        const responseTodos = await request(baseUrl)
-        .post(`users/${userId}/todos`)
-        .set('Authorization', `Bearer ${token}`)
-        .send(userTodos)
-        .expect(201);
+        await request(baseUrl)
+            .post(`users/${userId}/todos`)
+            .set('Authorization', `Bearer ${token}`)
+            .send(userTodos)
+            .expect(201);
           
         // then
         await request(baseUrl)
@@ -62,10 +59,11 @@ describe('CREATE and READ user', () => {
     test('negative scenario to send empty request',
     async() => {
         // given 
-        const expectedEmail = "{\"field\":\"email\",\"message\":\"can't be blank\"}";
-        const expectedName = "{\"field\":\"name\",\"message\":\"can't be blank\"}";
-        const expectedStatus = "{\"field\":\"status\",\"message\":\"can't be blank\"}";
-        const expectedGender = "{\"field\":\"gender\",\"message\":\"can't be blank, can be male of female\"}"; // need to adjust error message after defect is fixed
+       
+        let expectedEmail = "{\"field\":\"email\",\"message\":\"can't be blank\"}";
+        let expectedName = "{\"field\":\"name\",\"message\":\"can't be blank\"}";
+        let expectedStatus = "{\"field\":\"status\",\"message\":\"can't be blank\"}";
+        let expectedGender = "{\"field\":\"gender\",\"message\":\"can't be blank, can be male of female\"}"; // need to adjust error message after defect is fixed
 
         // when
         // then
@@ -92,10 +90,11 @@ describe('CREATE and READ user', () => {
             gender: "incorrect"
         };
 
-        const expectedGender = "{\"field\":\"gender\",\"message\":\"can't be blank, can be male of female\"}"; // need to adjust error message after defect is fixed
+        // todo
+        let expectedGender = "{\"field\":\"gender\",\"message\":\"can't be blank, can be male of female\"}"; // need to adjust error message after defect is fixed
 
         // when
-        const response = await request(baseUrl)
+        await request(baseUrl)
             .post('users')
             .set('Authorization', `Bearer ${token}`)
             .send(user)
@@ -116,11 +115,11 @@ describe('CREATE and READ user', () => {
             staus: "incorrect",
             gender: randomUser.generateGender()
         };
-
-        const expectedStatus = "{\"field\":\"status\",\"message\":\"can't be blank\"}"; // to correct when defect is fixed
+        // todo
+        let expectedStatus = "{\"field\":\"status\",\"message\":\"can't be blank\"}"; // to correct when defect is fixed
         
         // when
-        const response = await request(baseUrl)
+        await request(baseUrl)
             .post('users')
             .set('Authorization', `Bearer ${token}`)
             .send(user)
@@ -140,11 +139,11 @@ describe('CREATE and READ user', () => {
             staus: randomUser.generateStatus(),
             gender: randomUser.generateGender()
         };
-
-        const expectedEmail = "{\"field\":\"email\",\"message\":\"is invalid\"}";
+        // todo
+        let expectedEmail = "{\"field\":\"email\",\"message\":\"is invalid\"}";
         
         // when
-        const response = await request(baseUrl)
+        await request(baseUrl)
             .post('users')
             .set('Authorization', `Bearer ${token}`)
             .send(user)
@@ -161,7 +160,7 @@ describe('CREATE and READ user', () => {
         let user = randomUser.generateRandomData();
         
         // when
-        const response = await request(baseUrl)
+        let response = await request(baseUrl)
             .post('users')
             .set('Authorization', `Bearer ${token}`)
             .send(user)
@@ -169,7 +168,7 @@ describe('CREATE and READ user', () => {
 
           
         // then
-        const createdUser = await request(baseUrl)
+        await request(baseUrl)
             .get(`users/${response.body.id}`)
             .set('Authorization', `Bearer ${token}`)
             .expect(200)
@@ -186,7 +185,6 @@ describe('CREATE and READ user', () => {
 
 
 describe('UPDATE and READ user', () => {
-
     test('positive scenario for updating all user data',
     async() => {
         // given
@@ -195,7 +193,7 @@ describe('UPDATE and READ user', () => {
         let newUserData = randomUser.generateRandomData();
         
         // when
-        const response = await request(baseUrl)
+        await request(baseUrl)
             .put(`users/${userId}`)
             .set('Authorization', `Bearer ${token}`)
             .send(newUserData)
@@ -225,7 +223,7 @@ describe('UPDATE and READ user', () => {
          }
          
          // when
-         const response = await request(baseUrl)
+         await request(baseUrl)
              .patch(`users/${userId}`)
              .set('Authorization', `Bearer ${token}`)
              .send(newUserData)
@@ -255,7 +253,7 @@ describe('UPDATE and READ user', () => {
         }
         
         // when
-        const response = await request(baseUrl)
+        await request(baseUrl)
             .patch(`users/${userId}`)
             .set('Authorization', `Bearer ${token}`)
             .send(newUserData)
@@ -285,7 +283,7 @@ describe('UPDATE and READ user', () => {
         }
         
         // when
-        const response = await request(baseUrl)
+        await request(baseUrl)
             .patch(`users/${userId}`)
             .set('Authorization', `Bearer ${token}`)
             .send(newUserData)
@@ -310,11 +308,12 @@ describe('UPDATE and READ user', () => {
     async() => {
         // given
         let newUserData = randomUser.generateRandomData();
+        // todo
         let expectedError = "{\"message\":\"Resource not found\"}"
         
         // when
         // then
-        const response = await request(baseUrl)
+        await request(baseUrl)
             .put(`users/NotExisting`)
             .set('Authorization', `Bearer ${token}`)
             .send(newUserData)
@@ -334,7 +333,7 @@ describe('UPDATE and READ user', () => {
         
         // when
         // then
-        const response = await request(baseUrl)
+        await request(baseUrl)
             .patch(`users/NotExisting`)
             .set('Authorization', `Bearer ${token}`)
             .send(newUserData)
@@ -352,6 +351,7 @@ describe('UPDATE and READ user', () => {
         let newUserData = {
             email: "someStrangeValue"
         };
+        // todo
         let expectedError =  "{\"field\":\"email\",\"message\":\"is invalid\"}"
         
         // when
@@ -375,6 +375,7 @@ describe('UPDATE and READ user', () => {
         let newUserData = {
             status: "someStrangeValue"
         };
+        // todo
         let expectedError =  "{\"field\":\"status\",\"message\":\"can't be blank\"}"  // error message need to be adjusted after bug is fixed
         
         // when
@@ -397,6 +398,7 @@ describe('UPDATE and READ user', () => {
         let newUserData = {
             gender: "someStrangeValue"
         };
+        // todo
         let expectedError =  "{\"field\":\"gender\",\"message\":\"can't be blank, can be male of female\"}" // need to be changed after bug is fixed
         
         // when
@@ -412,7 +414,7 @@ describe('UPDATE and READ user', () => {
     });
 
     async function postUser(userData) {
-        const response = await request(baseUrl)
+        let response = await request(baseUrl)
             .post('users')
             .set('Authorization', `Bearer ${token}`)
             .send(userData)
