@@ -26,33 +26,26 @@ export function generateStatus() {
 }
 
 export function generatePosts() {
-    let data;
-    data = {
+    return {
         title: faker.lorem.sentence(3, 10),
         body: faker.lorem.text()
     }
-   return data;
 }
 
 export function generateTodos() {
-    let data;
-    data = {
+   return {
         title: faker.lorem.sentence(3, 10),
         status: getRandomTodoStatus()
     }
-   return data;
 }
 
 export function generateComments(userName, userEmail, postId) {
-    let data;
-    data = {
+  return {
         post: postId,
         name: userName,
         email: userEmail,
         body: faker.lorem.sentence(10,20),
     }
-    
-   return data;
 }
 
 function getRandomStatus() {

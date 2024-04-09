@@ -21,18 +21,29 @@ describe('CREATE and READ user', () => {
        
         // when
         userId = await postUserAndVerify();
-       
-        await request(BASE_URL)
+      
+        let postResonse = await request(BASE_URL)
             .post(`users/${userId}/posts`)
             .set('Authorization', `Bearer ${TOKEN}`)
             .send(userPost)
             .expect(STATUS_CREATED);
+        let postId = postResonse.body.id;
 
         await request(BASE_URL)
             .post(`users/${userId}/todos`)
             .set('Authorization', `Bearer ${TOKEN}`)
             .send(userTodos)
             .expect(STATUS_CREATED);
+
+        let userComments = randomUser.generateComments(randomUser.generateName(), randomUser.generateEmail(), postId);
+        
+        await request(BASE_URL)
+            .post(`posts/${postId}/comments`)
+            .set('Authorization', `Bearer ${TOKEN}`)
+            .send(userComments)
+            .expect(STATUS_CREATED);
+
+        
           
         // then
         await request(BASE_URL)
@@ -54,7 +65,16 @@ describe('CREATE and READ user', () => {
                     expect(response.body[0].title).toBe(userTodos.title);
                     expect(response.body[0].status).toBe(userTodos.status);
                     expect(response.body[0].user_id).toBe(userId);
-              
+            });
+
+            await request(BASE_URL)
+                .get(`posts/${postId}/comments`)
+                .set('Authorization', `Bearer ${TOKEN}`)
+                .expect(STATUS_OK)
+                .then(response => {
+                    expect(response.body[0].name).toBe(userComments.name);
+                    expect(response.body[0].email).toBe(userComments.email);
+                    expect(response.body[0].body).toBe(userComments.body);
             });
     });
         
@@ -431,13 +451,12 @@ describe('DELETE user', () => {
             .expect(STATUS_NO_CONTENT);
     });
 
-    test.only('positive scenario to delete user with external resources',
+    test('positive scenario to delete user with external resources',
     async() => {
         // given
         let userData = randomUser.generateRandomData();
         let userId = await newUser.create(userData);
         let postId = await newUser.createPosts(userId);
-        console.log("userid: " + userId +", postId: " + postId);
         await newUser.createTodos(userId);
         await newUser.createComments( userData.name, userData.email, postId);
         
