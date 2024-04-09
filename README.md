@@ -13,3 +13,4 @@ faker - to generate fake user data
 4. Error message is not correct when gender or status are set to incorrect value during POST request
 5. PUT method should not allow to do partial update
 6. When trying to delete not existing user, the error message should not state 404 NOT FOUND
+7. Authorization is not working properly as user can send post/put/patch/delete request with invalid token

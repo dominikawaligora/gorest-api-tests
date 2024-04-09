@@ -1,5 +1,5 @@
 import request from "supertest";
-import { BASE_URL, TOKEN, STATUS_CREATED, STATUS_OK, STATUS_NO_CONTENT, STATUS_DATA_VALIDATION_FAILED, STATUS_NOT_FOUND } 
+import { BASE_URL, TOKEN, STATUS_CREATED, STATUS_OK, STATUS_NO_CONTENT, STATUS_DATA_VALIDATION_FAILED, STATUS_NOT_FOUND, STATUS_UNATHORIZED } 
     from "../config/api";
 
 const randomUser = require('../helper/userdata-generator');
@@ -112,7 +112,7 @@ describe('CREATE and READ user', () => {
             gender: "incorrect"
         };
 
-        // todo
+        
         let expectedGender = "{\"field\":\"gender\",\"message\":\"can't be blank, can be male of female\"}"; // need to adjust error message after defect is fixed
 
         // when
@@ -127,7 +127,6 @@ describe('CREATE and READ user', () => {
 
     });
 
-
     test('negative scenario for creating user with icorrect status',
     async() => {
         // given 
@@ -137,7 +136,7 @@ describe('CREATE and READ user', () => {
             staus: "incorrect",
             gender: randomUser.generateGender()
         };
-        // todo
+        
         let expectedStatus = "{\"field\":\"status\",\"message\":\"can't be blank\"}"; // to correct when defect is fixed
         
         // when
@@ -161,7 +160,7 @@ describe('CREATE and READ user', () => {
             staus: randomUser.generateStatus(),
             gender: randomUser.generateGender()
         };
-        // todo
+        
         let expectedEmail = "{\"field\":\"email\",\"message\":\"is invalid\"}";
         
         // when
@@ -175,7 +174,6 @@ describe('CREATE and READ user', () => {
             });
 
     });
-
 
     async function postUserAndVerify() {
         // given 
@@ -330,7 +328,7 @@ describe('UPDATE and READ user', () => {
     async() => {
         // given
         let newUserData = randomUser.generateRandomData();
-        // todo
+        
         let expectedError = "{\"message\":\"Resource not found\"}"
         
         // when
@@ -373,7 +371,7 @@ describe('UPDATE and READ user', () => {
         let newUserData = {
             email: "someStrangeValue"
         };
-        // todo
+        
         let expectedError =  "{\"field\":\"email\",\"message\":\"is invalid\"}"
         
         // when
@@ -397,7 +395,7 @@ describe('UPDATE and READ user', () => {
         let newUserData = {
             status: "someStrangeValue"
         };
-        // todo
+        
         let expectedError =  "{\"field\":\"status\",\"message\":\"can't be blank\"}"  // error message need to be adjusted after bug is fixed
         
         // when
@@ -420,7 +418,7 @@ describe('UPDATE and READ user', () => {
         let newUserData = {
             gender: "someStrangeValue"
         };
-        // todo
+        
         let expectedError =  "{\"field\":\"gender\",\"message\":\"can't be blank, can be male of female\"}" // need to be changed after bug is fixed
         
         // when
